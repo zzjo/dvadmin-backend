@@ -15,3 +15,10 @@ class Index(CoreModel):
     low = DecimalField(max_digits=19, decimal_places=4, verbose_name="最低")
     volume = DecimalField(max_digits=19, decimal_places=4, verbose_name="成交量")
     amount = DecimalField(max_digits=19, decimal_places=4, verbose_name="成交额")
+
+    class Meta:
+        verbose_name = "指数数据"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f"{self.name}"
