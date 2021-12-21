@@ -5,6 +5,7 @@ from rest_framework.request import Request
 from apps.vadmin.op_drf.response import SuccessResponse
 from apps.vadmin.op_drf.viewsets import CustomModelViewSet
 from apps.vadmin.stock.models.index import Index
+from apps.vadmin.stock.serializers import IndexSerializer
 import akshare as ak
 import numpy as np
 
@@ -14,6 +15,7 @@ class IndexModelViewSet(CustomModelViewSet):
     菜单模型 的CRUD视图
     """
     queryset = Index.objects.all()
+    serializer_class = IndexSerializer
 
     def get_index_data(self, request: Request, *args, **kwargs):
         if Index.objects.exists():
