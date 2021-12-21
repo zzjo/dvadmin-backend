@@ -16,6 +16,20 @@ class Index(CoreModel):
     volume = DecimalField(max_digits=19, decimal_places=4, verbose_name="成交量")
     amount = DecimalField(max_digits=19, decimal_places=4, verbose_name="成交额")
 
+    # def __init__(self, code, name, latest_price, change_percent, price_change, closed, open, height, low, volume,
+    #              amount):
+    #     self.code = code
+    #     self.name = name
+    #     self.latest_price = latest_price
+    #     self.change_percent = change_percent
+    #     self.price_change = price_change
+    #     self.closed = closed
+    #     self.open = open
+    #     self.height = height
+    #     self.low = low
+    #     self.volume = volume
+    #     self.amount = amount
+
     class Meta:
         verbose_name = "指数数据"
         verbose_name_plural = verbose_name

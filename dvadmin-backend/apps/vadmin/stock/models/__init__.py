@@ -1,0 +1,1 @@
+from apps.vadmin.stock.models.index import Index

@@ -54,5 +54,6 @@ urlpatterns = [
     re_path(r'^system/', include('apps.vadmin.system.urls')),
     re_path(r'^celery/', include('apps.vadmin.celery.urls')),
     re_path(r'^monitor/', include('apps.vadmin.monitor.urls')),
+    re_path(r'^stock/', include('apps.vadmin.stock.urls')),
 
 ]

@@ -38,7 +38,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # 允许ajax请求携带cookie
 CORS_ALLOW_CREDENTIALS = False
 # 验证码状态
-CAPTCHA_STATE = True
+CAPTCHA_STATE = False
 # 操作日志配置
 API_LOG_ENABLE = True
 API_LOG_METHODS = ['POST', 'DELETE', 'PUT'] # 'ALL' or ['POST', 'DELETE']
