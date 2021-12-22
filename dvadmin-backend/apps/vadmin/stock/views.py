@@ -25,7 +25,9 @@ class IndexModelViewSet(CustomModelViewSet):
             serializer = self.get_serializer(queryset, many=True)
             return SuccessResponse(serializer.data)
         else:
-            return SuccessResponse(self.__bUlk_add__())
+            queryset = self.__bUlk_add__()
+            serializer = self.get_serializer(queryset, many=True)
+            return SuccessResponse(serializer.data)
 
     def __bUlk_add__(self):
         stock_zh_index_spot_df = ak.stock_zh_index_spot()

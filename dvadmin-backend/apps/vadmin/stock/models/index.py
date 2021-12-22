@@ -13,8 +13,8 @@ class Index(CoreModel):
     open = DecimalField(max_digits=19, decimal_places=4, verbose_name="今开")
     height = DecimalField(max_digits=19, decimal_places=4, verbose_name="最高")
     low = DecimalField(max_digits=19, decimal_places=4, verbose_name="最低")
-    volume = DecimalField(max_digits=19, decimal_places=4, verbose_name="成交量")
-    amount = DecimalField(max_digits=19, decimal_places=4, verbose_name="成交额")
+    volume = DecimalField(max_digits=19, decimal_places=0, verbose_name="成交量")
+    amount = DecimalField(max_digits=19, decimal_places=0, verbose_name="成交额")
 
     # def __init__(self, code, name, latest_price, change_percent, price_change, closed, open, height, low, volume,
     #              amount):
