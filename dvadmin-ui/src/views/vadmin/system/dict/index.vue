@@ -22,19 +22,8 @@
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select
-          v-model="queryParams.status"
-          placeholder="字典状态"
-          clearable
-          size="small"
-          style="width: 240px"
-        >
-          <el-option
-            v-for="dict in statusOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
-          />
+        <el-select v-model="queryParams.status" placeholder="字典状态" clearable size="small" style="width: 240px">
+          <el-option v-for="dict in statusOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="dict.dictValue" />
         </el-select>
       </el-form-item>
       <el-form-item label="创建时间">
@@ -117,7 +106,7 @@
       <el-table-column label="字典名称" align="center" prop="dictName" :show-overflow-tooltip="true" />
       <el-table-column label="字典类型" align="center" :show-overflow-tooltip="true">
         <template slot-scope="scope">
-          <router-link :to="hasPermi(['system:dict:type:get']) ?'/dict/type/data/' + scope.row.id :'#'" class="link-type">
+          <router-link :to="hasPermi(['system:dict:type:get']) ? '/dict/type/data/' + scope.row.id : '#'" class="link-type">
             <span>{{ scope.row.dictType }}</span>
           </router-link>
         </template>
@@ -130,7 +119,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="hasPermi(['system:dict:type:{id}:put','system:dict:type:{id}:delete'])"
+        v-if="hasPermi(['system:dict:type:{id}:put', 'system:dict:type:{id}:delete'])"
         label="操作"
         align="center"
         class-name="small-padding fixed-width"
@@ -155,7 +144,7 @@
     </el-table>
 
     <pagination
-      v-show="total>0"
+      v-show="total > 0"
       :total="total"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
@@ -173,11 +162,7 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio
-              v-for="dict in statusOptions"
-              :key="dict.dictValue"
-              :label="dict.dictValue"
-            >{{ dict.dictLabel }}</el-radio>
+            <el-radio v-for="dict in statusOptions" :key="dict.dictValue" :label="dict.dictValue">{{ dict.dictLabel }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -233,12 +218,8 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        dictName: [
-          { required: true, message: "字典名称不能为空", trigger: "blur" }
-        ],
-        dictType: [
-          { required: true, message: "字典类型不能为空", trigger: "blur" }
-        ]
+        dictName: [{ required: true, message: "字典名称不能为空", trigger: "blur" }],
+        dictType: [{ required: true, message: "字典类型不能为空", trigger: "blur" }]
       }
     };
   },
@@ -256,8 +237,7 @@ export default {
         this.typeList = response.data.results;
         this.total = response.data.count;
         this.loading = false;
-      }
-      );
+      });
     },
     // 字典状态字典翻译
     statusFormat(row, column) {
@@ -339,12 +319,14 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      }).then(function() {
-        return delType(ids);
-      }).then(() => {
-        this.getList();
-        this.msgSuccess("删除成功");
-      });
+      })
+        .then(function() {
+          return delType(ids);
+        })
+        .then(() => {
+          this.getList();
+          this.msgSuccess("删除成功");
+        });
     },
     /** 导出按钮操作 */
     handleExport() {
@@ -353,11 +335,13 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      }).then(function() {
-        return exportType(queryParams);
-      }).then(response => {
-        this.download(response.data.file_url, response.data.name);
-      });
+      })
+        .then(function() {
+          return exportType(queryParams);
+        })
+        .then(response => {
+          this.download(response.data.file_url, response.data.name);
+        });
     },
     /** 清理缓存按钮操作 */
     handleClearCache() {

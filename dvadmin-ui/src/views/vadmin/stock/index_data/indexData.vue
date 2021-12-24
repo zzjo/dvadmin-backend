@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form v-show="showSearch" ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+    <el-form ref="queryForm" :inline="true" label-width="68px">
       <el-form-item label="创建时间">
         <el-date-picker
           v-model="dateRange"
@@ -14,7 +14,7 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery"> 搜索 </el-button>
+        <!-- <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery"> 搜索 </el-button> -->
       </el-form-item>
     </el-form>
     <el-transfer
@@ -27,6 +27,45 @@
   </div>
 </template>
 
-<script></script>
+<script>
+import getIndexData from "@/api/vadmin/stock/index";
+export default {
+  data() {
+    const generateData = _ => {
+      const data = [];
+      const cities = [];
+      const pinyin = [];
+      cities.forEach((city, index) => {
+        data.push({
+          label: city,
+          key: index,
+          pinyin: pinyin[index]
+        });
+      });
+      return data;
+    };
+    return {
+      data: generateData(),
+      value: [],
+      filterMethod(query, item) {
+        return item.pinyin.indexOf(query) > -1;
+      },
+      // 日期范围
+      dateRange: []
+    };
+  },
+  created() {
+    this.indexList();
+  },
+  methods: {
+    indexList() {
+      getIndexData.then(response => {
+        this.cities = response.data;
+        this.pinyin = response.data;
+      });
+    }
+  }
+};
+</script>
 
 <style></style>

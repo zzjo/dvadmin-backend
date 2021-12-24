@@ -17,6 +17,10 @@ class IndexModelViewSet(CustomModelViewSet):
     queryset = Index.objects.all()
     serializer_class = IndexSerializer
 
+    def get_index_list(self, request: Request, *args, **kwargs):
+        namelist = Index.objects.values("name")
+        return SuccessResponse(namelist)
+
     def get_index_data(self, request: Request, *args, **kwargs):
         if Index.objects.exists():
             queryset = Index.objects.all()
