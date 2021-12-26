@@ -7,8 +7,8 @@ router = DefaultRouter()
 router.register(r'stock', IndexModelViewSet)
 urlpatterns = [
 
-    re_path('/index/getIndexData', IndexModelViewSet.as_view({'get': 'get_index_data'})),
-    re_path('/index/getIndexList', IndexModelViewSet.as_view({'get': 'get_index_list'})),
+    re_path('index/getIndexData', IndexModelViewSet.as_view({'get': 'get_index_data'})),
+    re_path('index/getIndexList', IndexModelViewSet.as_view({'get': 'get_index_list'})),
     # 导YModelViewSet.as_view({'get': 'importTemplate', 'post': 'importTemplate'})),
 
 ]

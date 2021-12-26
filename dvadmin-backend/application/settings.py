@@ -198,7 +198,7 @@ LOGGING = {
             'encoding': 'utf-8',
         },
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'console',
         }

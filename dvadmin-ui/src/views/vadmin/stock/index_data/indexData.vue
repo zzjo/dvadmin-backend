@@ -28,24 +28,12 @@
 </template>
 
 <script>
-import getIndexData from "@/api/vadmin/stock/index";
+import { getIndexData } from "@/api/vadmin/stock/index";
 export default {
   data() {
-    const generateData = _ => {
-      const data = [];
-      const cities = [];
-      const pinyin = [];
-      cities.forEach((city, index) => {
-        data.push({
-          label: city,
-          key: index,
-          pinyin: pinyin[index]
-        });
-      });
-      return data;
-    };
     return {
-      data: generateData(),
+      pinyin: [],
+      data: [],
       value: [],
       filterMethod(query, item) {
         return item.pinyin.indexOf(query) > -1;
@@ -59,9 +47,16 @@ export default {
   },
   methods: {
     indexList() {
-      getIndexData.then(response => {
-        this.cities = response.data;
+      getIndexData().then(response => {
         this.pinyin = response.data;
+        response.data.forEach((city, index) => {
+          this.data.push({
+            label: city,
+            key: index,
+            pinyin: this.pinyin[index]
+          });
+        });
+        console.log(response.data);
       });
     }
   }
