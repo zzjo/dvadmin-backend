@@ -38,6 +38,7 @@ import CommonStaticTable from "@/components/CommonStaticTable";
 import { getCrontabData, getIntervalData } from "./utils/validate"; // 通用图标组件
 import { getModelSelect } from "@/utils/modelSelect";
 
+Vue.config.devtools = true;
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts;
 Vue.prototype.getConfigKey = getConfigKey;
