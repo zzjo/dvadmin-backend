@@ -44,7 +44,8 @@ export default {
       dateRange: [],
       // 查询参数
       queryParams: {
-        ids: []
+        ids: [],
+        datas: []
       },
       leftvalue: [],
       rightvalue: []
@@ -68,6 +69,7 @@ export default {
     },
     handleQuery() {
       this.queryParams.ids = [];
+      this.queryParams.datas = [];
       if (this.rightvalue == null || this.rightvalue.length == 0) {
         this.$alert("请先选择指数", "提示", {
           confirmButtonText: "确定"
@@ -76,8 +78,10 @@ export default {
         this.rightvalue.forEach(key => {
           this.queryParams.ids.push(this.data[key].pinyin);
         });
+        this.queryParams.datas = this.dateRange;
+        console.log(this.dateRange);
         // this.loading = true;
-        getTimePeriod(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+        getTimePeriod(this.queryParams).then(response => {
           // this.typeList = response.data.results;
           // this.total = response.data.count;
           // this.loading = false;

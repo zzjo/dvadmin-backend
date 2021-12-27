@@ -26,19 +26,20 @@ class IndexHistoryModelViewSet(CustomModelViewSet):
     # 获取某时间段的涨幅
     def get_time_period(self, request: Request, *args, **kwargs):
         logger.info(type(request.data["ids"]))
-        logger.info(type(request.data["as"]))
-        logger.info(request.data["as"])
-
+        logger.info(request.data)
+        logger.info(request.data["dates"])
+        dates = request.data["dates"]
         # 循环指数
-        # request.data["ids"]
-        # # 指数是否为空
-        # queryset = IndexHistory.objects.filter(name__in=kwargs.get("ids"))
-        # if queryset.exists():
-        #     pass
-        # else:
-        #     ak.stock_zh_index_daily(symbol="sz399552")
-        return SuccessResponse("nice")
+        for id in request.data["ids"]:
+            # 指数是否为空
+            queryset = IndexHistory.objects.filter(name__in=id, data__rang=dates)
+            if queryset.exists():
+                pass
+            else:
+                index_daily = ak.stock_zh_index_daily(symbol=id)
 
+
+        return SuccessResponse("nice")
 
 
 class IndexModelViewSet(CustomModelViewSet):
@@ -69,6 +70,26 @@ class IndexModelViewSet(CustomModelViewSet):
 
     def __bUlk_add__(self):
         Index.objects.all().delete()
+        stock_zh_index_spot_df = ak.stock_zh_index_spot()
+        index_arr = []
+        for x in stock_zh_index_spot_df.values:
+            index = Index()
+            index.code = x[0]
+            index.name = x[1]
+            index.latest_price = x[2]
+            index.change_percent = x[3]
+            index.price_change = x[4]
+            index.closed = x[5]
+            index.open = x[6]
+            index.height = x[7]
+            index.low = x[8]
+            index.volume = x[9]
+            index.amount = x[10]
+            index_arr.append(index)
+        return Index.objects.bulk_create(index_arr)
+
+    def __history_bUlk_add__(self):
+
         stock_zh_index_spot_df = ak.stock_zh_index_spot()
         index_arr = []
         for x in stock_zh_index_spot_df.values:
