@@ -45,6 +45,16 @@ def string_2datetime(dt_str, fmt='%Y-%m-%d %H:%M:%S'):
         return None
     return datetime.datetime.strptime(dt_str, fmt)
 
+def string_2date(dt_str, fmt='%Y-%m-%d'):
+    """
+    将字符串转换为datetime类型
+    >>> string_2datetime("2011-09-07 12:30:09")
+    datetime.datetime(2011, 9, 7, 12, 30, 9)
+    """
+    if not dt_str:
+        return None
+    return datetime.date.strptime(dt_str, fmt)
+
 
 def string_2datetime2(dt_str, fmt='%Y-%m-%d'):
     return string_2datetime(dt_str[:10], fmt)
