@@ -8,6 +8,7 @@ from apps.vadmin.op_drf.viewsets import CustomModelViewSet
 from apps.vadmin.stock.models.index import Index
 from apps.vadmin.stock.models.index_history import IndexHistory
 from apps.vadmin.stock.serializers import IndexHistorySerializer, IndexSerializer
+from chinese_calendar import is_workday, is_holiday
 import akshare as ak
 import numpy as np
 
@@ -40,32 +41,38 @@ class IndexHistoryModelViewSet(CustomModelViewSet):
                 queryset = list(IndexHistory.objects.filter(code=code, date__range=dates).order_by("date"))
                 self.__compute__(queryset, results)
             else:
+                # 什么情况下补更 节假日   时间是否对应，排除今天
                 # 判断最大的时间是否等于输入时间
-                if queryset[len(queryset) - 1].date == datetime_util.string_2date(dates[1]):
+                if queryset[len(queryset) - 1].date == datetime_util.string_2date(dates[1]) or is_holiday(
+                        datetime_util.string_2date(dates[1])) or datetime_util.string_2date(dates[1]) != date.today():
                     # 计算出最大涨跌幅  (当天收盘价格-第一天收盘价格)/当天收盘价格
                     self.__compute__(queryset, results)
                 else:
-                    # 时间是否对应，排除今天
-                    if datetime_util.string_2date(dates[1]) != date.today():
-                        queryset += self.__history_bUlk_add__(code, queryset[len(queryset) - 1].data)
-                        self.__compute__(queryset, results)
-                    else:
-                        self.__compute__(queryset, results)
+                    queryset += self.__history_bUlk_add__(code, queryset[len(queryset) - 1].date)
+                    self.__compute__(queryset, results)
         return SuccessResponse(results)
 
     def __compute__(self, queryset, results):
         low = 0
         high = 0
+        high_date = 0
+        high_close = 0
         for x, index in enumerate(queryset):
             if x == 0:
                 fist_close = index.close
             else:
-                contrast = (index.close - fist_close) / index.close
+                contrast = (fist_close - index.close) / fist_close
                 if contrast < low:
                     low = contrast
                 if contrast > high:
                     high = contrast
+                    high_date = index.date
+                    high_close = index.close
+
         return results.append({'name': queryset[0].name, 'high': (high * 100).quantize(Decimal('0.00')),
+                               'highDate': high_date,
+                               'highClose': high_close,
+                               'fist_close': fist_close,
                                'low': (low * 100).quantize(Decimal('0.00'))})
 
     def __history_bUlk_add__(self, code, date):
