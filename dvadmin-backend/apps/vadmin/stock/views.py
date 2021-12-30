@@ -43,17 +43,23 @@ class IndexHistoryModelViewSet(CustomModelViewSet):
             else:
                 # 什么情况下补更 节假日   时间是否对应，排除今天
                 # 判断最大的时间是否等于输入时间
-                if queryset[len(queryset) - 1].date == datetime_util.string_2date(dates[1]) or is_holiday(
-                        datetime_util.string_2date(dates[1])) or datetime_util.string_2date(dates[1]) != date.today():
+                if is_holiday(datetime_util.string_2date(dates[1])) or queryset[
+                    len(queryset) - 1].date == datetime_util.string_2date(dates[1]):
                     # 计算出最大涨跌幅  (当天收盘价格-第一天收盘价格)/当天收盘价格
                     self.__compute__(queryset, results)
                 else:
-                    queryset += self.__history_bUlk_add__(code, queryset[len(queryset) - 1].date)
-                    self.__compute__(queryset, results)
+                    if datetime_util.string_2date(dates[1]) == date.today():
+                        self.__compute__(queryset, results)
+                    else:
+                        self.__history_bUlk_add__(code, queryset[len(queryset) - 1].date)
+                        queryset = list(IndexHistory.objects.filter(code=code, date__range=dates).order_by("date"))
+                        self.__compute__(queryset, results)
         return SuccessResponse(results)
 
     def __compute__(self, queryset, results):
         low = 0
+        low_date = 0
+        low_close = 0
         high = 0
         high_date = 0
         high_close = 0
@@ -61,19 +67,23 @@ class IndexHistoryModelViewSet(CustomModelViewSet):
             if x == 0:
                 fist_close = index.close
             else:
-                contrast = (fist_close - index.close) / fist_close
+                contrast = (index.close - fist_close) / fist_close
                 if contrast < low:
                     low = contrast
+                    low_date = index.date
+                    low_close = index.close
                 if contrast > high:
                     high = contrast
                     high_date = index.date
-                    high_close = index.close
+                    high_close = index.high
 
-        return results.append({'name': queryset[0].name, 'high': (high * 100).quantize(Decimal('0.00')),
-                               'highDate': high_date,
-                               'highClose': high_close,
-                               'fist_close': fist_close,
-                               'low': (low * 100).quantize(Decimal('0.00'))})
+        return results.append(
+            {'code': queryset[0].code, 'name': queryset[0].name, 'fistClose': fist_close, 'high': "%.2f" % (high * 100),
+             'highDate': high_date,
+             'highClose': high_close,
+             'low': "%.2f" % (low * 100),
+             'lowDate': low_date,
+             'lowClose': low_close})
 
     def __history_bUlk_add__(self, code, date):
         index = Index.objects.filter(code=code)[0]
@@ -92,7 +102,7 @@ class IndexHistoryModelViewSet(CustomModelViewSet):
                 index_history.volume = x[5]
                 daily_arr.append(index_history)
             else:
-                if datetime_util.string_2datetime2(date) < datetime_util.string_2datetime2(x[0]):
+                if date < x[0]:
                     index_history = IndexHistory()
                     index_history.code = index.code
                     index_history.name = index.name

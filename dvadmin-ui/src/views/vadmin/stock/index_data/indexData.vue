@@ -1,7 +1,8 @@
 <template>
   <div class="app-container">
+
     <el-form ref="queryForm" :inline="true" label-width="68px">
-      <el-form-item label="创建时间">
+      <el-form-item label="筛选时间">
         <el-date-picker
           v-model="dateRange"
           size="small"
@@ -17,6 +18,7 @@
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery"> 搜索 </el-button>
       </el-form-item>
     </el-form>
+
     <el-transfer
       v-model="value"
       :titles="['未选指数', '已选指数']"
@@ -26,6 +28,41 @@
       :data="data"
       @change="handleChange"
     ></el-transfer>
+
+    <el-table
+      :data="tableData"
+      style="width: 100%"
+      :default-sort="{prop: 'date', order: 'descending'}"
+    >
+      <el-table-column
+        prop="name"
+        label="指数名称"
+        width="180"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="high"
+        label="最大涨幅"
+        sortable
+        width="180"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="low"
+        sortable
+        label="最大跌幅"
+      >
+      </el-table-column>
+      <el-table-column label="操作">
+        <template slot-scope="scope">
+          <el-button
+            size="mini"
+            @click="handleEdit(scope.$index, scope.row)"
+          >查看</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
   </div>
 </template>
 
@@ -48,13 +85,17 @@ export default {
         dates: []
       },
       leftvalue: [],
-      rightvalue: []
+      rightvalue: [],
+      tableData: []
     };
   },
   created() {
     this.indexList();
   },
   methods: {
+    handleEdit(index, row) {
+      console.log(index, row);
+    },
     indexList() {
       getIndexData().then(response => {
         this.pinyin = response.data.code;
@@ -79,12 +120,11 @@ export default {
           this.queryParams.ids.push(this.data[key].pinyin);
         });
         this.queryParams.dates = this.dateRange;
-        console.log(this.dateRange);
-        // this.loading = true;
+        debugger;
+        this.loading = true;
         getTimePeriod(this.queryParams).then(response => {
-          // this.typeList = response.data.results;
-          // this.total = response.data.count;
-          // this.loading = false;
+          this.tableData = response.data;
+          this.loading = false;
         });
       }
     },
