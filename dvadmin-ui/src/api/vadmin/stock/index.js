@@ -15,3 +15,11 @@ export function getTimePeriod(data) {
     data: data
   });
 }
+// 查询指数数据列表
+export function getIndexHistory(data) {
+  return request({
+    url: "/admin/stock/index/getIndexHistory",
+    method: "post",
+    data: data
+  });
+}

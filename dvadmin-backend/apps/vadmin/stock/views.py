@@ -27,6 +27,14 @@ class IndexHistoryModelViewSet(CustomModelViewSet):
     queryset = IndexHistory.objects.all()
     serializer_class = IndexHistorySerializer
 
+    # 获取历史数据
+    def get_index_history(self, request: Request, *args, **kwargs):
+        dates = request.data["dates"]
+        code = request.data["code"]
+        return SuccessResponse(
+            IndexHistory.objects.filter(code=code, date__range=dates).values_list("date", "open", "close", "low",
+                                                                                  'high'))
+
     # 获取某时间段的涨幅
     def get_time_period(self, request: Request, *args, **kwargs):
         results = []
@@ -57,33 +65,45 @@ class IndexHistoryModelViewSet(CustomModelViewSet):
         return SuccessResponse(results)
 
     def __compute__(self, queryset, results):
-        low = 0
-        low_date = 0
-        low_close = 0
-        high = 0
-        high_date = 0
-        high_close = 0
-        for x, index in enumerate(queryset):
-            if x == 0:
-                fist_close = index.close
-            else:
-                contrast = (index.close - fist_close) / fist_close
-                if contrast < low:
-                    low = contrast
-                    low_date = index.date
-                    low_close = index.close
-                if contrast > high:
-                    high = contrast
-                    high_date = index.date
-                    high_close = index.high
-
+        logger.info(max(index.close for index in queryset))
+        # 时间段
+        high_period = 0
+        low_period = 0
+        high_date_start = 0
+        high_date_end = 0
+        low_date_start = 0
+        low_date_end = 0
+        fist_close = queryset[0].close
+        high = max(queryset, key=lambda x: x.close)
+        high_date_end = high.date
+        low = min(queryset, key=lambda x: x.close)
+        low_date_end = low.date
+        # low = min(index.close for index in queryset)
+        # 怎么求开始时间最大涨幅
+        high_index = queryset.index(high)
+        low_index = queryset.index(low)
+        for i in range(high_index, -1, -1):
+            index = queryset[i]
+            if index.close <= fist_close:
+                high_period = high_index - i
+                high_date_start = index.date
+                break
+        for i in range(low_index, -1, -1):
+            index = queryset[i]
+            if index.close >= fist_close:
+                low_period = low_index - i
+                low_date_start = index.date
+                break
         return results.append(
-            {'code': queryset[0].code, 'name': queryset[0].name, 'fistClose': fist_close, 'high': "%.2f" % (high * 100),
-             'highDate': high_date,
-             'highClose': high_close,
-             'low': "%.2f" % (low * 100),
-             'lowDate': low_date,
-             'lowClose': low_close})
+            {'code': queryset[0].code, 'name': queryset[0].name, 'fistClose': fist_close,
+             'high': "%.2f" % (((high.close - fist_close) / fist_close) * 100),
+             'highDate': high_date_start,
+             'highDateEnd': high_date_end,
+             'highPeriod': high_period,
+             'low': "%.2f" % (((low.close - fist_close) / fist_close) * 100),
+             'lowDate': low_date_start,
+             'lowDateEnd': low_date_end,
+             'lowPeriod': low_period})
 
     def __history_bUlk_add__(self, code, date):
         index = Index.objects.filter(code=code)[0]

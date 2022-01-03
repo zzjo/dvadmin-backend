@@ -37,9 +37,10 @@ import CommonIcon from "@/components/CommonIcon";
 import CommonStaticTable from "@/components/CommonStaticTable";
 import { getCrontabData, getIntervalData } from "./utils/validate"; // 通用图标组件
 import { getModelSelect } from "@/utils/modelSelect";
+import { echarts } from "echarts";
 
-Vue.config.devtools = true;
 // 全局方法挂载
+Vue.prototype.echarts = echarts;
 Vue.prototype.getDicts = getDicts;
 Vue.prototype.getConfigKey = getConfigKey;
 Vue.prototype.getModelSelect = getModelSelect;
@@ -71,6 +72,7 @@ Vue.prototype.msgError = function(msg) {
 Vue.prototype.msgInfo = function(msg) {
   this.$message.info(msg);
 };
+
 // 自定义组件
 Vue.component("SmallDialog", SmallDialog);
 Vue.component("DeptTree", DeptTree);
