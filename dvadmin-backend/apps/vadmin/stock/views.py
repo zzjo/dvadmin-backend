@@ -7,10 +7,10 @@ from apps.vadmin.op_drf.response import SuccessResponse
 from apps.vadmin.op_drf.viewsets import CustomModelViewSet
 from apps.vadmin.stock.models.index import Index
 from apps.vadmin.stock.models.index_history import IndexHistory
-from apps.vadmin.stock.serializers import IndexHistorySerializer, IndexSerializer
+from apps.vadmin.stock.models.new_fund import NewFund
+from apps.vadmin.stock.serializers import IndexHistorySerializer, IndexSerializer, NewFundSerializer
 from chinese_calendar import is_workday, is_holiday
 import akshare as ak
-import numpy as np
 
 import logging
 
@@ -18,6 +18,56 @@ import logging
 from apps.vadmin.utils import datetime_util
 
 logger = logging.getLogger(__name__)
+
+
+class NewFundModelViewSet(CustomModelViewSet):
+    """
+       菜单模型 的CRUD视图
+       """
+    queryset = NewFund.objects.all()
+    serializer_class = NewFundSerializer
+
+    # 获取新基金数据(按月份查找)
+    def get_new_fund(self, request: Request, *args, **kwargs):
+        # 判断是否更新
+        newfund = NewFund.objects.all().order_by('-date_establishment')
+        if newfund.exists():
+            # 判断是今天是否更新过
+            newfundlist = list(newfund)
+            if newfundlist[0].create_datetime == datetime.today():
+                pass
+            else:
+                # 更新缺失部分
+                self.__add_new_fund__(newfundlist[0].date_establishment)
+        else:
+            self.__add_new_fund__(None)
+
+    def __add_new_fund__(self, date_establishment):
+        fund_em_new_found_df = ak.fund_em_new_found().to_dict('records')
+        daily_arr = []
+        if not date_establishment:
+            for x in fund_em_new_found_df.values:
+                if x['成立日期'] > date_establishment:
+                    self.__do_mapping__(daily_arr, x)
+        else:
+            for x in fund_em_new_found_df.values:
+                self.__do_mapping__(daily_arr, x)
+        return NewFund.objects.bulk_create(daily_arr)
+
+    def __do_mapping__(self, arr, x):
+        newfund = NewFund()
+        newfund.name = x['基金简称']
+        newfund.code = x['基金代码']
+        newfund.date_establishment = x['成立日期']
+        newfund.discount_rate = x['优惠费率']
+        newfund.established_increase = x['成立来涨幅']
+        newfund.fund_manager = x['基金经理']
+        newfund.fund_type = x['基金类型']
+        newfund.publisher = x['发行公司']
+        newfund.raise_shares = x['募集份额']
+        newfund.subscription_period = x['集中认购期']
+        newfund.subscription_status = x['申购状态']
+        arr.append(newfund)
 
 
 class IndexHistoryModelViewSet(CustomModelViewSet):
