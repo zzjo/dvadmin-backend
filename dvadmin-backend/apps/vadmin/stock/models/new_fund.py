@@ -14,7 +14,7 @@ class NewFund(CoreModel):
     established_increase = DecimalField(max_digits=19, decimal_places=3, verbose_name="成立来涨幅")
     fund_manager = CharField(max_length=64, verbose_name="基金经理")
     subscription_status = CharField(max_length=64, verbose_name="申购状态")
-    discount_rate = DecimalField(max_digits=19, decimal_places=3, verbose_name="优惠费率")
+    discount_rate = CharField(max_digits=19, decimal_places=3, verbose_name="优惠费率")
 
     class Meta:
         verbose_name = "新发布公墓基金"

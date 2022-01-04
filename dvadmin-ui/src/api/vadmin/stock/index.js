@@ -23,3 +23,11 @@ export function getIndexHistory(data) {
     data: data
   });
 }
+// 查询新发基金
+export function getNewFund(data) {
+  return request({
+    url: "/admin/stock/index/getNewFund",
+    method: "post",
+    data: data
+  });
+}

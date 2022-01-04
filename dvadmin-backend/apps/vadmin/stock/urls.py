@@ -4,7 +4,8 @@ from rest_framework.routers import DefaultRouter
 from apps.vadmin.stock.views import IndexModelViewSet, IndexHistoryModelViewSet, NewFundModelViewSet
 
 router = DefaultRouter()
-router.register(r'stock', IndexModelViewSet, IndexHistoryModelViewSet, NewFundModelViewSet)
+router.register(r'stock', IndexModelViewSet, IndexHistoryModelViewSet)
+router.register(r'stock', NewFundModelViewSet)
 urlpatterns = [
 
     re_path('index/getIndexData', IndexModelViewSet.as_view({'get': 'get_index_data'})),

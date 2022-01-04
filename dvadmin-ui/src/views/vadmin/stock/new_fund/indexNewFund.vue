@@ -3,7 +3,7 @@
     <el-form ref="queryForm" :inline="true" label-width="68px">
       <el-form-item label="筛选时间">
         <el-date-picker
-          v-model="dateRange"
+          v-model="monthrange"
           size="small"
           style="width: 240px"
           value-format="yyyy-MM"
@@ -23,13 +23,17 @@
 </template>
 
 <script>
-import {} from "@/api/vadmin/stock/";
+import { getNewFund } from "@/api/vadmin/stock/index";
 import * as echarts from "echarts";
 
 export default {
   // 定义属性
   data() {
     return {
+      monthrange: [],
+      queryParams: {
+        dates: []
+      },
       option: {
         tooltip: {
           trigger: "axis",
@@ -104,33 +108,28 @@ export default {
             data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
           }
         ]
-      }
+      },
+      chartLineBox: null
     };
-  },
-  // 监控data中的数据变化
-  watch: {},
-  // 生命周期 - 创建完成（可以访问当前this实例）
-  created() {
-
   },
   // 生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
 
   },
-  beforeCreate() {}, // 生命周期 - 创建之前
-  beforeMount() {}, // 生命周期 - 挂载之前
-  beforeUpdate() {}, // 生命周期 - 更新之前
-  updated() {}, // 生命周期 - 更新之后
-  beforeDestroy() {}, // 生命周期 - 销毁之前
-  destroyed() {}, // 生命周期 - 销毁完成
-  activated() {},
   // 方法集合
   methods: {
-
+    getChartLineBox() {
+      this.chartLineBox = echarts.init(document.getElementById("chartLineBox"));
+      this.chartLineBox.setOption(this.option);
+    },
+    handleQuery() {
+      this.queryParams.datas = this.monthrange;
+      getNewFund(this.queryParams).then(response => {
+        console.log(response);
+      });
+    }
   } // 如果页面有keep-alive缓存功能，这个函数会触发
 };
 </script>
 
-<style lang='stylus' scoped>
-
-</style>
+<style></style>

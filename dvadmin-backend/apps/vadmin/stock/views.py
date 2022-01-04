@@ -46,12 +46,12 @@ class NewFundModelViewSet(CustomModelViewSet):
         fund_em_new_found_df = ak.fund_em_new_found().to_dict('records')
         daily_arr = []
         if not date_establishment:
-            for x in fund_em_new_found_df.values:
-                if x['成立日期'] > date_establishment:
-                    self.__do_mapping__(daily_arr, x)
-        else:
-            for x in fund_em_new_found_df.values:
+            for x in fund_em_new_found_df:
                 self.__do_mapping__(daily_arr, x)
+        else:
+            for x in fund_em_new_found_df:
+                if datetime_util.string_2date(x['成立日期']) > date_establishment:
+                    self.__do_mapping__(daily_arr, x)
         return NewFund.objects.bulk_create(daily_arr)
 
     def __do_mapping__(self, arr, x):
