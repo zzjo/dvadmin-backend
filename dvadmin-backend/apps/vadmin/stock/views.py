@@ -1,3 +1,4 @@
+import decimal
 import logging
 from datetime import datetime, date
 from decimal import Decimal
@@ -43,13 +44,14 @@ class NewFundModelViewSet(CustomModelViewSet):
             self.__add_new_fund__(None)
 
     def __add_new_fund__(self, date_establishment):
-        fund_em_new_found_df = ak.fund_em_new_found().to_dict('records')
+        fund_em_new_found_df = ak.fund_em_new_found()
+        dirdata = fund_em_new_found_df.to_dict('records')
         daily_arr = []
         if not date_establishment:
-            for x in fund_em_new_found_df:
+            for x in dirdata:
                 self.__do_mapping__(daily_arr, x)
         else:
-            for x in fund_em_new_found_df:
+            for x in dirdata:
                 if datetime_util.string_2date(x['成立日期']) > date_establishment:
                     self.__do_mapping__(daily_arr, x)
         return NewFund.objects.bulk_create(daily_arr)
@@ -60,13 +62,16 @@ class NewFundModelViewSet(CustomModelViewSet):
         newfund.code = x['基金代码']
         newfund.date_establishment = x['成立日期']
         newfund.discount_rate = x['优惠费率']
-        newfund.established_increase = x['成立来涨幅']
+        established_increase = x['成立来涨幅'].replace(',', '')
+        newfund.established_increase = decimal.Decimal(0 if not established_increase else established_increase)
         newfund.fund_manager = x['基金经理']
         newfund.fund_type = x['基金类型']
         newfund.publisher = x['发行公司']
-        newfund.raise_shares = x['募集份额']
+        raise_shares = x['募集份额'].replace(',', '')
+        newfund.raise_shares = decimal.Decimal(0 if not raise_shares else raise_shares)
         newfund.subscription_period = x['集中认购期']
         newfund.subscription_status = x['申购状态']
+        logger.info("募集份额{0}, 成立来涨幅{1}".format(newfund.raise_shares, newfund.established_increase))
         arr.append(newfund)
 
 
