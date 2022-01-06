@@ -6,6 +6,7 @@
 import time
 import datetime
 import calendar
+from dateutil import rrule
 
 
 def generate_timestamp():
@@ -44,6 +45,7 @@ def string_2datetime(dt_str, fmt='%Y-%m-%d %H:%M:%S'):
     if not dt_str:
         return None
     return datetime.datetime.strptime(dt_str, fmt)
+
 
 def string_2date(dt_str, fmt='%Y-%m-%d'):
     """
@@ -260,6 +262,37 @@ def get_date_list(start_date, end_date, fmt="%Y-%m-%d"):
     return date_list
 
 
+def get_month_rang_list(start_month, end_month):
+    """
+    从开始日期到结束日期查询存在的月份列表，除去本月的数据
+    :param start_month:
+    :param end_month:
+    :return:
+    """
+    start_time = datetime.datetime.strptime(start_month, "%Y-%m")
+    end_time = datetime.datetime.strptime(end_month, "%Y-%m")
+    month_count = rrule.rrule(rrule.MONTHLY, dtstart=start_time, until=end_time).count()
+    # now_month = datetime.datetime.strptime(str(datetime.datetime.now())[:7], "%Y-%m")
+    if start_time == end_time:
+        return []
+    else:
+        month_list = []
+    for x in range(month_count):
+        year, month = [int(y) for y in str(start_time)[:7].split("-")]
+        month = month + x
+        if month > 12:
+            year += 1
+            month -= 12
+        elif month < 1:
+            year -= 1
+            month += 12
+            year, month = str(year), str(month)
+        if len(month) == 1:
+            month = "0" + month
+        month_list.append(year + "-" + month)
+    return month_list
+
+
 def get_1st_of_last_week(index):
     """
     index:1 - 7 代表上周星期一到星期日
@@ -297,6 +330,16 @@ def get_flday_of_month(year=None, month=None):
     fd_of_month = datetime.datetime(year=year, month=month, day=1)
     ld_of_month = datetime.datetime(year=year, month=month, day=month_range)
 
+    return fd_of_month, ld_of_month
+
+
+def get_flday_by_month(fd_str, ld_str):
+    """获取1参数某月第一天，2参数某月的最后一天"""
+    fd_of_month = datetime.datetime.strptime(fd_str, "%Y-%m")
+    ld_date = datetime.datetime.strptime(ld_str, "%Y-%m")
+    # 获取当月第一天的星期和当月的总天数
+    fd_of_week, month_range = calendar.monthrange(ld_date.year, ld_date.month)
+    ld_of_month = datetime.datetime(year=ld_date.year, month=ld_date.month, day=month_range)
     return fd_of_month, ld_of_month
 
 
