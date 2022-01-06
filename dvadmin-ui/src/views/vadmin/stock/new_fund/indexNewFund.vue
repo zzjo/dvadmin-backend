@@ -123,7 +123,7 @@ export default {
       this.chartLineBox.setOption(this.option);
     },
     handleQuery() {
-      this.queryParams.datas = this.monthrange;
+      this.queryParams.dates = this.monthrange;
       getNewFund(this.queryParams).then(response => {
         console.log(response);
       });

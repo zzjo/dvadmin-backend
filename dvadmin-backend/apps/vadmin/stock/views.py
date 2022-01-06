@@ -32,16 +32,17 @@ class NewFundModelViewSet(CustomModelViewSet):
     # 获取新基金数据(按月份查找)
     def get_new_fund(self, request: Request, *args, **kwargs):
         results = {}
+        temp = []
         # 判断是否更新
         newfund = NewFund.objects.all().order_by('-date_establishment')
-        if newfund.exists():
-            # 判断是今天是否更新过
-            newfund_list = list(newfund)
-            if datetime_util.format_datetime_2date(newfund_list[0].create_datetime) != date.today():
-                # 更新缺失部分
-                self.__add_new_fund__(newfund_list[0].date_establishment)
-        else:
+        if not newfund.exists():
             self.__add_new_fund__(None)
+            # 判断是今天是否更新过 定时任务
+            # newfund_list = list(newfund)
+            # if datetime_util.format_datetime_2date(newfund_list[0].create_datetime) != date.today():
+            #     # 更新缺失部分
+            #     self.__add_new_fund__(newfund_list[0].date_establishment)
+
         # 查询分装数据
         dates = request.data['dates']
         fd, ld = datetime_util.get_flday_by_month(dates[0], dates[1])
@@ -54,7 +55,21 @@ class NewFundModelViewSet(CustomModelViewSet):
                 fund_type__startswith='股票型') | Q(fund_type__startswith='QDII')).filter(
             date_establishment__gte=fd).filter(date_establishment__lte=ld)
         fund_pd = pd.DataFrame(list(fund_list.values()))
-        fund_group = fund_pd.groupby("date_establishment")
+        fund_group = fund_pd.groupby(fund_pd["date_establishment"].apply(lambda x: x.month))
+        # fund_group[['fund_type']][['raise_shares']]
+        mix_arr = []
+        for key, data in fund_group['fund_type']:
+            mix = Decimal(0)
+            data1 = fund_group['raise_shares'].get_group(key)
+            # for key1, data1 in fund_group['raise_shares']:
+            for i, v in data.items():
+                if str(v).find('混合型') == 0:
+                    mix = mix.__add__(Decimal(data1[i]))
+            mix_arr.append(mix)
+        temp.append({'name': '数量', 'type': 'line', 'yAxisIndex': '1', 'data': list(fund_group["id"].count())})
+        temp.append({'name': '混合型', 'type': 'bar', 'data': mix_arr})
+        logger.info(mix_arr)
+        results['series'] = temp
         return SuccessResponse(results)
 
     def __add_new_fund__(self, date_establishment):

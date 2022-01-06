@@ -286,7 +286,7 @@ def get_month_rang_list(start_month, end_month):
         elif month < 1:
             year -= 1
             month += 12
-            year, month = str(year), str(month)
+        year, month = str(year), str(month)
         if len(month) == 1:
             month = "0" + month
         month_list.append(year + "-" + month)
