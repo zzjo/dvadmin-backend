@@ -55,21 +55,60 @@ class NewFundModelViewSet(CustomModelViewSet):
                 fund_type__startswith='股票型') | Q(fund_type__startswith='QDII')).filter(
             date_establishment__gte=fd).filter(date_establishment__lte=ld)
         fund_pd = pd.DataFrame(list(fund_list.values()))
-        fund_group = fund_pd.groupby(fund_pd["date_establishment"].apply(lambda x: x.month))
-        # fund_group[['fund_type']][['raise_shares']]
+
+        def year_month(x):
+            a = x.year
+            b = x.month
+            return a * 100 + b
+
+        fund_group = fund_pd.groupby(fund_pd["date_establishment"].apply(year_month))
         mix_arr = []
+        index_arr = []
+        bond_arr = []
+        stock_arr = []
+        qdii_arr = []
         for key, data in fund_group['fund_type']:
             mix = Decimal(0)
+            index = Decimal(0)
+            bond = Decimal(0)
+            stock = Decimal(0)
+            qdii = Decimal(0)
             data1 = fund_group['raise_shares'].get_group(key)
-            # for key1, data1 in fund_group['raise_shares']:
             for i, v in data.items():
                 if str(v).find('混合型') == 0:
                     mix = mix.__add__(Decimal(data1[i]))
+                if str(v).find('指数型') == 0:
+                    index = index.__add__(Decimal(data1[i]))
+                if str(v).find('债券型') == 0:
+                    bond = bond.__add__(Decimal(data1[i]))
+                if str(v).find('股票型') == 0:
+                    stock = stock.__add__(Decimal(data1[i]))
+                if str(v).find('QDII') == 0:
+                    qdii = qdii.__add__(Decimal(data1[i]))
             mix_arr.append(mix)
-        temp.append({'name': '数量', 'type': 'line', 'yAxisIndex': '1', 'data': list(fund_group["id"].count())})
+            index_arr.append(index)
+            bond_arr.append(bond)
+            stock_arr.append(stock)
+            qdii_arr.append(qdii)
+        amount_all = mix_arr + index_arr + bond_arr + stock_arr + qdii_arr
+        num_list = list(fund_group["id"].count())
+        num = max(num_list) + Decimal(200) * 10
+        amount = max(amount_all) + Decimal(2000)
+        if num > amount:
+            num_max = Decimal(str(num)[0]) * 100
+            amount_max = Decimal(str(num)[0]) * 1000
+        else:
+            num_max = Decimal(str(amount)[0]) * 100
+            amount_max = Decimal(str(amount)[0]) * 1000
+        temp.append({'name': '数量', 'type': 'line', 'yAxisIndex': '1', 'data': num_list})
         temp.append({'name': '混合型', 'type': 'bar', 'data': mix_arr})
-        logger.info(mix_arr)
+        temp.append({'name': '指数型', 'type': 'bar', 'data': index_arr})
+        temp.append({'name': '债券型', 'type': 'bar', 'data': bond_arr})
+        temp.append({'name': '股票型', 'type': 'bar', 'data': stock_arr})
+        temp.append({'name': 'QDII', 'type': 'bar', 'data': qdii_arr})
         results['series'] = temp
+        results['num_max'] = num_max
+        results['amount_max'] = amount_max
         return SuccessResponse(results)
 
     def __add_new_fund__(self, date_establishment):
