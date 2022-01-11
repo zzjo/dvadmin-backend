@@ -49,6 +49,7 @@ def BaseCeleryApp(name, save_success_logs=True):
                 res = func(*args, **kwargs)
                 if not save_success_logs:
                     return res
+                logger.info(f"传入参数:{args, kwargs}")
                 obj.result = str(res)
                 obj.status = True
             except Exception as exc:

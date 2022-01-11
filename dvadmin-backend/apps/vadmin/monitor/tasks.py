@@ -73,7 +73,6 @@ def get_monitor_info():
         sys_files_obj.disk_sys = disk.used
         sys_files_obj.monitor = monitor_obj
         sys_files_obj.save()
-
     return SuccessResponse(msg="")
 
 
