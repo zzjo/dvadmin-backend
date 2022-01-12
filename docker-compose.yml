@@ -53,7 +53,7 @@ services:
     ports:
       - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: "q1w2e3r4T%Y^U&MYSQL"
+      MYSQL_ROOT_PASSWORD: "root"
       MYSQL_DATABASE: "django-vue-admin"
       TZ: Asia/Shanghai
     command:
