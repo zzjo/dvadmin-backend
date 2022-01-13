@@ -32,79 +32,108 @@ class NewFundModelViewSet(CustomModelViewSet):
     # 获取新基金数据(按月份查找)
     def get_new_fund(self, request: Request, *args, **kwargs):
         results = {}
-        ak.stock_zh_index_spot()
-        # temp = []
-        # # 判断是否更新
-        # newfund = NewFund.objects.all().order_by('-date_establishment')
-        # if not newfund.exists():
-        #     self.__add_new_fund__(None)
-        # # 查询分装数据
-        # dates = request.data['dates']
-        # fd, ld = datetime_util.get_flday_by_month(dates[0], dates[1])
-        # # 月份区间
-        # results['xAxis'] = datetime_util.get_month_rang_list(dates[0], dates[1])
-        # # 基金类型
-        # results['legend'] = ["混合型", "指数型", "债券型", "股票型", "QDII"]
-        # fund_list = NewFund.objects.filter(
-        #     Q(fund_type__startswith='混合型') | Q(fund_type__startswith='指数型') | Q(fund_type__startswith='债券型') | Q(
-        #         fund_type__startswith='股票型') | Q(fund_type__startswith='QDII')).filter(
-        #     date_establishment__gte=fd).filter(date_establishment__lte=ld)
-        # fund_pd = pd.DataFrame(list(fund_list.values()))
-        #
-        # def year_month(x):
-        #     a = x.year
-        #     b = x.month
-        #     return a * 100 + b
-        #
-        # fund_group = fund_pd.groupby(fund_pd["date_establishment"].apply(year_month))
-        # mix_arr = []
-        # index_arr = []
-        # bond_arr = []
-        # stock_arr = []
-        # qdii_arr = []
-        # for key, data in fund_group['fund_type']:
-        #     mix = Decimal(0)
-        #     index = Decimal(0)
-        #     bond = Decimal(0)
-        #     stock = Decimal(0)
-        #     qdii = Decimal(0)
-        #     data1 = fund_group['raise_shares'].get_group(key)
-        #     for i, v in data.items():
-        #         if str(v).find('混合型') == 0:
-        #             mix = mix.__add__(Decimal(data1[i]))
-        #         if str(v).find('指数型') == 0:
-        #             index = index.__add__(Decimal(data1[i]))
-        #         if str(v).find('债券型') == 0:
-        #             bond = bond.__add__(Decimal(data1[i]))
-        #         if str(v).find('股票型') == 0:
-        #             stock = stock.__add__(Decimal(data1[i]))
-        #         if str(v).find('QDII') == 0:
-        #             qdii = qdii.__add__(Decimal(data1[i]))
-        #     mix_arr.append(mix)
-        #     index_arr.append(index)
-        #     bond_arr.append(bond)
-        #     stock_arr.append(stock)
-        #     qdii_arr.append(qdii)
-        # amount_all = mix_arr + index_arr + bond_arr + stock_arr + qdii_arr
-        # num_list = list(fund_group["id"].count())
-        # num = max(num_list) + Decimal(200) * 10
-        # amount = max(amount_all) + Decimal(2000)
-        # if num > amount:
-        #     num_max = Decimal(str(num)[0]) * 100
-        #     amount_max = Decimal(str(num)[0]) * 1000
-        # else:
-        #     num_max = Decimal(str(amount)[0]) * 100
-        #     amount_max = Decimal(str(amount)[0]) * 1000
-        # temp.append({'name': '数量', 'type': 'line', 'yAxisIndex': '1', 'data': num_list})
-        # temp.append({'name': '混合型', 'type': 'bar', 'data': mix_arr})
-        # temp.append({'name': '指数型', 'type': 'bar', 'data': index_arr})
-        # temp.append({'name': '债券型', 'type': 'bar', 'data': bond_arr})
-        # temp.append({'name': '股票型', 'type': 'bar', 'data': stock_arr})
-        # temp.append({'name': 'QDII', 'type': 'bar', 'data': qdii_arr})
-        # results['series'] = temp
-        # results['num_max'] = num_max
-        # results['amount_max'] = amount_max
+        temp = []
+        # 判断是否更新
+        newfund = NewFund.objects.all().order_by('-date_establishment')
+        if not newfund.exists():
+            self.__add_new_fund__(None)
+        # 查询分装数据
+        dates = request.data['dates']
+        fd, ld = datetime_util.get_flday_by_month(dates[0], dates[1])
+        # 月份区间
+        results['xAxis'] = datetime_util.get_month_rang_list(dates[0], dates[1])
+        # 基金类型
+        results['legend'] = ["混合型", "指数型", "债券型", "股票型", "QDII"]
+        fund_list = NewFund.objects.filter(
+            Q(fund_type__startswith='混合型') | Q(fund_type__startswith='指数型') | Q(fund_type__startswith='债券型') | Q(
+                fund_type__startswith='股票型') | Q(fund_type__startswith='QDII')).filter(
+            date_establishment__gte=fd).filter(date_establishment__lte=ld)
+        fund_pd = pd.DataFrame(list(fund_list.values()))
+
+        def year_month(x):
+            a = x.year
+            b = x.month
+            return a * 100 + b
+
+        fund_group = fund_pd.groupby(fund_pd["date_establishment"].apply(year_month))
+        mix_arr = []
+        index_arr = []
+        bond_arr = []
+        stock_arr = []
+        qdii_arr = []
+        for key, data in fund_group['fund_type']:
+            mix = Decimal(0)
+            index = Decimal(0)
+            bond = Decimal(0)
+            stock = Decimal(0)
+            qdii = Decimal(0)
+            data1 = fund_group['raise_shares'].get_group(key)
+            for i, v in data.items():
+                if str(v).find('混合型') == 0:
+                    mix = mix.__add__(Decimal(data1[i]))
+                if str(v).find('指数型') == 0:
+                    index = index.__add__(Decimal(data1[i]))
+                if str(v).find('债券型') == 0:
+                    bond = bond.__add__(Decimal(data1[i]))
+                if str(v).find('股票型') == 0:
+                    stock = stock.__add__(Decimal(data1[i]))
+                if str(v).find('QDII') == 0:
+                    qdii = qdii.__add__(Decimal(data1[i]))
+            mix_arr.append(mix)
+            index_arr.append(index)
+            bond_arr.append(bond)
+            stock_arr.append(stock)
+            qdii_arr.append(qdii)
+        amount_all = mix_arr + index_arr + bond_arr + stock_arr + qdii_arr
+        num_list = list(fund_group["id"].count())
+        num = max(num_list) + Decimal(200) * 10
+        amount = max(amount_all) + Decimal(2000)
+        if num > amount:
+            num_max = Decimal(str(num)[0]) * 100
+            amount_max = Decimal(str(num)[0]) * 1000
+        else:
+            num_max = Decimal(str(amount)[0]) * 100
+            amount_max = Decimal(str(amount)[0]) * 1000
+        temp.append({'name': '数量', 'type': 'line', 'yAxisIndex': '1', 'data': num_list})
+        temp.append({'name': '混合型', 'type': 'bar', 'data': mix_arr})
+        temp.append({'name': '指数型', 'type': 'bar', 'data': index_arr})
+        temp.append({'name': '债券型', 'type': 'bar', 'data': bond_arr})
+        temp.append({'name': '股票型', 'type': 'bar', 'data': stock_arr})
+        temp.append({'name': 'QDII', 'type': 'bar', 'data': qdii_arr})
+        results['series'] = temp
+        results['num_max'] = num_max
+        results['amount_max'] = amount_max
         return SuccessResponse(results)
+
+    def __add_new_fund__(self, date_establishment):
+        fund_em_new_found_df = ak.fund_em_new_found()
+        dirdata = fund_em_new_found_df.to_dict('records')
+        daily_arr = []
+        if not date_establishment:
+            for x in dirdata:
+                self.__do_mapping__(daily_arr, x)
+        else:
+            for x in dirdata:
+                if datetime_util.string_2date(x['成立日期']) > date_establishment:
+                    self.__do_mapping__(daily_arr, x)
+        return NewFund.objects.bulk_create(daily_arr)
+
+    def __do_mapping__(self, arr, x):
+        newfund = NewFund()
+        newfund.name = x['基金简称']
+        newfund.code = x['基金代码']
+        newfund.date_establishment = x['成立日期']
+        newfund.discount_rate = x['优惠费率']
+        established_increase = x['成立来涨幅'].replace(',', '')
+        newfund.established_increase = decimal.Decimal(0 if not established_increase else established_increase)
+        newfund.fund_manager = x['基金经理']
+        newfund.fund_type = x['基金类型']
+        newfund.publisher = x['发行公司']
+        raise_shares = x['募集份额'].replace(',', '')
+        newfund.raise_shares = decimal.Decimal(0 if not raise_shares else raise_shares)
+        newfund.subscription_period = x['集中认购期']
+        newfund.subscription_status = x['申购状态']
+        arr.append(newfund)
 
 
 class IndexHistoryModelViewSet(CustomModelViewSet):
