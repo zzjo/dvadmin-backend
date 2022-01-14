@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.8
 # ENV PYTHONUNBUFFERED 1
 #RUN sed -i s/deb.debian.org/mirrors.163.com/g /etc/apt/sources.list
 #RUN cat /etc/apt/sources.list

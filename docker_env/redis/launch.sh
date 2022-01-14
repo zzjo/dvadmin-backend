@@ -1,3 +1,5 @@
+#!/bin/bash
+
 cur_path=`pwd`
 # docker pull redis:latest
 docker run -d \
