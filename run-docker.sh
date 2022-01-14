@@ -43,8 +43,18 @@ case "$1" in
         echo "=== stop ";;
 
     restart)
-        echo "=== restart ";;
+        echo "正在重启中..."
+        docker-compose stop dvadmin-django
+        docker-compose build dvadmin-django
+        docker-compose start dvadmin-django
+        echo "重启完成...";;
 
+    restart1)
+        echo "正在重启中..."
+        docker-compose stop dvadmin-django dvadmin-celery
+        docker-compose build dvadmin-django dvadmin-celery
+        docker-compose start dvadmin-django dvadmin-celery
+        echo "重启完成...";;
     *)
         help
 	      exit 1

@@ -124,8 +124,8 @@ class NewFundModelViewSet(CustomModelViewSet):
         newfund.code = x['基金代码']
         newfund.date_establishment = x['成立日期']
         newfund.discount_rate = x['优惠费率']
-        established_increase = x['成立来涨幅'].replace(',', '')
-        newfund.established_increase = decimal.Decimal(0 if not established_increase else established_increase)
+        # established_increase = x['成立来涨幅'].replace(',', '')
+        newfund.established_increase = decimal.Decimal(0 if not x['成立来涨幅'] else x['成立来涨幅'])
         newfund.fund_manager = x['基金经理']
         newfund.fund_type = x['基金类型']
         newfund.publisher = x['发行公司']
